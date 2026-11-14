@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <print>
 
 #include "book_database.hpp"
 #include "comparators.hpp"
@@ -8,6 +9,13 @@
 using namespace bookdb;
 
 int main() {
+
+    // @todo: tests
+    constexpr bookdb::Book bk{"1984", "George Orwell", 1949, Genre::SciFi, 4., 190};
+    constexpr bookdb::Book bk2 = Book("1984", "George Orwell", 1949, GenreFromString("SciFi"), 4., 190);
+
+    std::print("{}", bk);
+
     //
     // Ниже приведён пример работы `BookDatabase`.
     //

@@ -1,31 +1,56 @@
 #pragma once
 
+#include <algorithm>
+#include <array>
+#include <cstddef>
 #include <format>
+#include <optional>
 #include <stdexcept>
 #include <string_view>
+#include <utility>
 
 namespace bookdb {
 
-enum class Genre { Fiction, NonFiction, SciFi, Biography, Mystery, Unknown };
+enum class Genre : uint8_t { Fiction = 0, NonFiction, SciFi, Biography, Mystery, Unknown };
+// @note: +1 cos enum starts with '0'
+constexpr size_t GenreSize = static_cast<size_t>(Genre::Unknown) + 1;
 
 // Ваш код для constexpr преобразования строк в enum::Genre и наоборот здесь
+inline constexpr std::array<std::pair<Genre, std::string_view>, GenreSize> genres{
+    {{Genre::Fiction, "Fiction"},        //
+     {Genre::NonFiction, "NonFiction"},  //
+     {Genre::SciFi, "SciFi"},            //
+     {Genre::Biography, "Biography"},    //
+     {Genre::Mystery, "Mystery"},        //
+     {Genre::Unknown, "Unknown"}}};
 
 constexpr Genre GenreFromString(std::string_view s) {
-    // Ваш код здесь
-    return Genre::Unknown;
+    const auto iter = std::find_if(genres.begin(), genres.end(), [&s](auto &pair) { return pair.second == s; });
+    return iter != genres.end() ? iter->first : Genre::Unknown;
+}
+constexpr std::string_view StringFromGenre(Genre g) {
+    const auto iter = std::find_if(genres.begin(), genres.end(), [&g](auto &pair) { return pair.first == g; });
+    return iter != genres.end() ? iter->second : "";
 }
 
 struct Book {
     // string_view для экономии памяти, чтобы ссылаться на оригинальную строку, хранящуюся в другом контейнере
-    std::string_view author;
-    std::string title;
+    std::string_view title_;
+    std::string_view author_;
 
-    int year;
-    Genre genre;
-    double rating;
-    int read_count;
+    int year_;
+    Genre genre_;
+    double rating_;
+    int read_count_;
 
     // Ваш код для конструкторов здесь
+    constexpr Book(std::string_view title, std::string_view author, int year, Genre genre, double rating,
+                   int read_count) noexcept
+        : title_(title), author_(author), year_(year), genre_(genre), rating_(rating), read_count_(read_count) {}
+    constexpr Book(std::string_view title, std::string_view author, int year, std::string_view genre, double rating,
+                   int read_count) noexcept
+        : title_(title), author_(author), year_(year), genre_(GenreFromString(genre)), rating_(rating),
+          read_count_(read_count) {}
 };
 }  // namespace bookdb
 
@@ -34,21 +59,10 @@ template <>
 struct formatter<bookdb::Genre, char> {
     template <typename FormatContext>
     auto format(const bookdb::Genre g, FormatContext &fc) const {
-        std::string genre_str;
-
-        // clang-format off
-        using bookdb::Genre;
-        switch (g) {
-            case Genre::Fiction:    genre_str = "Fiction"; break;
-            case Genre::Mystery:    genre_str = "Mystery"; break;
-            case Genre::NonFiction: genre_str = "NonFiction"; break;
-            case Genre::SciFi:      genre_str = "SciFi"; break;
-            case Genre::Biography:  genre_str = "Biography"; break;
-            case Genre::Unknown:    genre_str = "Unknown"; break;
-            default:
-                throw logic_error{"Unsupported bookdb::Genre"};
-            }
-        // clang-format on
+        auto genre_str = bookdb::StringFromGenre(g);
+        if (genre_str.empty()) {
+            throw logic_error{"Unsupported bookdb::Genre"};
+        }
         return format_to(fc.out(), "{}", genre_str);
     }
 
@@ -57,6 +71,23 @@ struct formatter<bookdb::Genre, char> {
     }
 };
 
-// Ваш код для std::formatter<Book> здесь
+template <>
+struct formatter<bookdb::Book> {
+    template <typename FormatContext>
+    auto format(const bookdb::Book b, FormatContext &fc) const {
+        format_to(fc.out(), "Book info:\n");
+        format_to(fc.out(), "title - {}\n", b.title_);
+        format_to(fc.out(), "author - {}\n", b.author_);
+        format_to(fc.out(), "year - {}\n", b.year_);
+        format_to(fc.out(), "genre - {}\n", b.genre_);
+        format_to(fc.out(), "rating - {}\n", b.rating_);
+        format_to(fc.out(), "read_count - {}\n", b.read_count_);
+        return fc.out();
+    }
+
+    constexpr auto parse(format_parse_context &ctx) {
+        return ctx.begin();  // Просто игнорируем пользовательский формат
+    }
+};
 
 }  // namespace std
