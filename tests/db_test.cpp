@@ -27,8 +27,7 @@ TEST(BookDatabaseTest, CtorInitList) {
 
     const auto diff1 = diff.first == db.GetBooks().end();
     const auto diff2 = diff.second == books.end();
-    EXPECT_TRUE(diff1 && diff2) << "  left:  " << (diff1 ? "<end>" : *diff.first) << "\n"
-                                << "  right: " << (diff2 ? "<end>" : *diff.second);
+    EXPECT_TRUE(diff1 && diff2);
 }
 
 TEST(BookDatabaseTest, PushBack) {

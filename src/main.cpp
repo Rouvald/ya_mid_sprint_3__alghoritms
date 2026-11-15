@@ -43,11 +43,19 @@ int main() {
 
     // Author histogram
     auto histogram = buildAuthorHistogramFlat(db);
-    std::print("Author histogram: {}", histogram);
+    // todo: have error with flat_map formatter
+    std::print("Author histogram:\n");
+    for (const auto &[author, count] : histogram) {
+        std::print("  {}: {}\n", author, count);
+    }
 
     // Ratings
     auto genreRatings = calculateGenreRatings(db.begin(), db.end());
-    std::print("\n\nAverage ratings by genres: {}\n", genreRatings);
+    std::print("\nAverage ratings by genres:\n");
+
+    for (const auto &[genre, rating] : genreRatings) {
+        std::print("  {}: {:.2f}\n", StringFromGenre(genre), rating);
+    }
 
     auto avrRating = calculateAverageRating(db);
     std::print("Average books rating in library: {}\n", avrRating);
@@ -66,6 +74,5 @@ int main() {
     if (orwellBookIt != db.end()) {
         std::print("\n\nTransparent lookup by authors. Found Orwell's book: {}\n", *orwellBookIt);
     }
-
     return 0;
 }
