@@ -9,13 +9,6 @@
 using namespace bookdb;
 
 int main() {
-
-    // @todo: tests
-    constexpr bookdb::Book bk{"1984", "George Orwell", 1949, Genre::SciFi, 4., 190};
-    constexpr bookdb::Book bk2 = Book("1984", "George Orwell", 1949, GenreFromString("SciFi"), 4., 190);
-
-    std::print("{}", bk);
-
     //
     // Ниже приведён пример работы `BookDatabase`.
     //
@@ -27,10 +20,6 @@ int main() {
 
     // Create a book database
     BookDatabase<std::vector<Book>> db;
-
-    /*
-
-    Код закомментирован, чтобы не приводить к ошибке компиляции
 
     // Add some books
     db.EmplaceBack("1984", "George Orwell", 1949, Genre::SciFi, 4., 190);
@@ -73,11 +62,10 @@ int main() {
     std::print("\n\nTop 3 books by rating:\n");
     std::for_each(topBooks.cbegin(), topBooks.cend(), [](const auto &v) { std::print("{}\n", v.get()); });
 
-    auto orwellBookIt = std::find_if(db.begin(), db.end(), [](const auto &v) { return v.author == "George Orwell"; });
+    auto orwellBookIt = std::find_if(db.begin(), db.end(), [](const auto &v) { return v.author_ == "George Orwell"; });
     if (orwellBookIt != db.end()) {
         std::print("\n\nTransparent lookup by authors. Found Orwell's book: {}\n", *orwellBookIt);
     }
-    */
 
     return 0;
 }

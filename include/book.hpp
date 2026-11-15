@@ -35,7 +35,7 @@ constexpr std::string_view StringFromGenre(Genre g) {
 
 struct Book {
     // string_view для экономии памяти, чтобы ссылаться на оригинальную строку, хранящуюся в другом контейнере
-    std::string_view title_;
+    std::string title_;
     std::string_view author_;
 
     int year_;
